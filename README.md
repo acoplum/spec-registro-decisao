@@ -16,6 +16,8 @@ Sem instalar nada: o validador é biblioteca padrão do Python 3.10+.
 
 Você vai ver sete registros serem **rejeitados**, um por invariante, e um ser aceito. Os rejeitados existem de propósito — provam que a regra pega o caso, em vez de a documentação afirmar que pegaria.
 
+O comando **sai com código 1**, e está certo: um validador que rejeitou algo não pode dizer que deu tudo bem. Para ver o código 0, rode só o exemplo válido — `python3 validar.py exemplos/valido.json`.
+
 ```
 REJEITADO i5-cpf-em-claro.json
           I5: subject.ref parece conter CPF em claro
