@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acoplum.com/spec/registro-decisao/0.1/schema.json",
+  "title": "Registro de Decisão",
+  "description": "Formato compartilhado por GlassBox, AgentLedger e TokenMeter. A estrutura é validada aqui; as sete invariantes exigem o validador de referência.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spec_version", "decision_id", "occurred_at", "tenant_id",
+    "subject", "decision", "system", "inputs", "reason_codes",
+    "explanation", "human_review", "appeal", "integrity"
+  ],
+  "properties": {
+    "spec_version": { "const": "0.1" },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "ULID em maiúsculas"
+    },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "tenant_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "ref_scheme"],
+      "properties": {
+        "ref": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "Referência pseudonimizada. Nunca dado bruto — invariante I5."
+        },
+        "ref_scheme": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "outcome", "outcome_space", "automated"],
+      "properties": {
+        "domain": { "type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$" },
+        "outcome": { "type": "string", "minLength": 1 },
+        "outcome_space": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 2,
+          "uniqueItems": true,
+          "description": "O que era possível. Sem isso, o resultado não informa nada ao titular."
+        },
+        "automated": { "type": "boolean" }
+      }
+    },
+
+    "system": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "policy_version", "code_version"],
+      "properties": {
+        "model": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "version"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "version": { "type": "string", "minLength": 1 }
+          }
+        },
+        "policy_version": { "type": "string", "minLength": 1 },
+        "code_version": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribution_method", "features"],
+      "properties": {
+        "attribution_method": { "enum": ["exact", "approximate", "none"] },
+        "attribution_note": { "type": "string", "minLength": 1 },
+        "features": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "name", "value"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+              "name": { "type": "string", "minLength": 1 },
+              "value": { "type": ["string", "number", "boolean", "null"] },
+              "contribution": {
+                "type": "number",
+                "description": "Proibido quando attribution_method = none — invariante I2."
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "attribution_method": { "const": "none" } } },
+          "then": {
+            "properties": {
+              "features": { "items": { "not": { "required": ["contribution"] } } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "attribution_method": { "enum": ["exact", "approximate"] } } },
+          "then": {
+            "properties": {
+              "features": { "items": { "required": ["contribution"] } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "attribution_method": { "const": "approximate" } } },
+          "then": { "required": ["attribution_note"] }
+        }
+      ]
+    },
+
+    "reason_codes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+      "description": "Vocabulário registrado do tenant — invariante I3. Texto livre aqui vira deriva."
+    },
+
+    "explanation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["language", "text", "derived_from"],
+      "properties": {
+        "language": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
+        "text": { "type": "string", "minLength": 1 },
+        "derived_from": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+          "description": "Só ids presentes em inputs.features — invariante I1."
+        }
+      }
+    },
+
+    "human_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "state"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "state": { "enum": ["nao_aplicavel", "pendente", "realizada"] },
+        "reviewer_ref": { "type": ["string", "null"] },
+        "overrode_outcome": { "type": ["string", "null"] }
+      }
+    },
+
+    "appeal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["available", "state"],
+      "properties": {
+        "available": { "type": "boolean" },
+        "channel": { "type": ["string", "null"] },
+        "state": { "enum": ["nao_solicitada", "solicitada", "em_analise", "concluida"] }
+      }
+    },
+
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tokens_input", "tokens_output", "currency", "amount"],
+      "properties": {
+        "tokens_input": { "type": "integer", "minimum": 0 },
+        "tokens_output": { "type": "integer", "minimum": 0 },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "amount": { "type": "number", "minimum": 0 }
+      }
+    },
+
+    "agent": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "owner", "authority"],
+          "properties": {
+            "id": { "type": "string", "minLength": 1 },
+            "owner": { "type": "string", "minLength": 1 },
+            "authority": { "type": "string", "minLength": 1 },
+            "budget_limit": { "type": ["number", "null"], "minimum": 0 }
+          }
+        }
+      ]
+    },
+
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prev_hash", "hash"],
+      "properties": {
+        "prev_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    }
+  }
+}

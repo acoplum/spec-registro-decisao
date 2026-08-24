@@ -1,0 +1,86 @@
+{
+  "spec_version": "0.1",
+  "decision_id": "01K3XQZJ8YB4N7V2M9RTFA6PCE",
+  "occurred_at": "2026-08-23T14:02:11.482Z",
+  "tenant_id": "banco-exemplo",
+  "subject": {
+    "ref": "sha256:9f2b7c1e4a08d5f3b6c9e2a7d4f1b8c5e3a6d9f2b7c1e4a08d5f3b6c9e2a7d4f",
+    "ref_scheme": "sha256(cpf + tenant_salt)"
+  },
+  "decision": {
+    "domain": "credito.limite",
+    "outcome": "pendente_analise",
+    "outcome_space": [
+      "aprovado",
+      "aprovado_com_limite",
+      "recusado"
+    ],
+    "automated": true
+  },
+  "system": {
+    "model": {
+      "name": "risco-pf",
+      "version": "4.2.0"
+    },
+    "policy_version": "2026.08.1",
+    "code_version": "glassbox-server 0.1.0"
+  },
+  "inputs": {
+    "attribution_method": "exact",
+    "attribution_note": "coeficientes do modelo linear",
+    "features": [
+      {
+        "id": "f1",
+        "name": "renda_declarada_faixa",
+        "value": "3-5sm",
+        "contribution": -0.31
+      },
+      {
+        "id": "f2",
+        "name": "tempo_relacionamento_meses",
+        "value": 4,
+        "contribution": -0.22
+      },
+      {
+        "id": "f3",
+        "name": "restricao_externa",
+        "value": true,
+        "contribution": -0.47
+      }
+    ]
+  },
+  "reason_codes": [
+    "RESTRICAO_EXTERNA_ATIVA",
+    "RELACIONAMENTO_RECENTE"
+  ],
+  "explanation": {
+    "language": "pt-BR",
+    "text": "O pedido foi recusado porque existe restrição ativa em consulta externa e porque o relacionamento tem 4 meses.",
+    "derived_from": [
+      "f3",
+      "f2"
+    ]
+  },
+  "human_review": {
+    "required": true,
+    "state": "pendente",
+    "reviewer_ref": null,
+    "overrode_outcome": null
+  },
+  "appeal": {
+    "available": true,
+    "channel": "https://banco-exemplo.com.br/contestar/01K3XQZJ8YB4N7V2M9RTFA6PCE",
+    "state": "nao_solicitada"
+  },
+  "cost": {
+    "tokens_input": 0,
+    "tokens_output": 0,
+    "currency": "BRL",
+    "amount": 0
+  },
+  "agent": null,
+  "integrity": {
+    "prev_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "hash": "sha256:ba9aa1d019204ae3b932b2da7e346ceaf17ad4129842e0a896005dc445bc4e8a"
+  }
+}
