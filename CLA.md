@@ -39,7 +39,7 @@ Você declara que:
 a) tem capacidade legal para celebrar este acordo;
 b) cada Contribuição é criação sua original, ou você detém direito suficiente para conceder as licenças das cláusulas 2 e 3;
 c) suas Contribuições não violam direito de terceiro de que você tenha conhecimento;
-d) **se você é empregado ou prestador de serviço**, ou se a Contribuição foi feita no âmbito de vínculo de trabalho, verificou que seu empregador ou contratante não detém direitos sobre a Contribuição, ou obteve autorização dele, ou seu empregador assinou o [CLA de entidade](CLA-entidade.md);
+d) **se você é empregado ou prestador de serviço**, ou se a Contribuição foi feita no âmbito de vínculo de trabalho, verificou que seu empregador ou contratante não detém direitos sobre a Contribuição, ou obteve autorização dele, ou seu empregador assinou o CLA de entidade (versão para entidade jurídica: solicite em contato@acoplum.com);
 e) informará a Acoplum caso qualquer declaração acima deixe de ser verdadeira.
 
 ## 5. Obra de terceiro

@@ -156,7 +156,7 @@ Deliberadamente ausentes, para a versão 0.1 ficar implementável:
 
 ## Implementação de referência — ✅ feita em 2026-08-23
 
-JSON Schema, validador e exemplos em [`spec/`](spec/). As sete invariantes estão implementadas e cada uma tem um exemplo que a viola, provando que rejeita.
+JSON Schema, validador e exemplos em este repositório. As sete invariantes estão implementadas e cada uma tem um exemplo que a viola, provando que rejeita.
 
 I2 é barrada em duas camadas — o Schema também a expressa, via `if`/`then` — porque é a invariante que sustenta a honestidade do produto.
 
